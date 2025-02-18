@@ -47,5 +47,40 @@ const signup = async () => {
         <input v-model="password" type="password" placeholder="Password" class="input" />
         <button @click="signup" class="button">Sign Up</button>
         <p>{{ message }}</p>
+        <br>
+        <router-link to="/login">Already have an account? Log in here</router-link>
     </div>
 </template>
+
+<style scoped>
+* {
+    box-sizing: border-box;
+}
+
+.signup-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.button {
+    width: 100%;
+    padding: 10px;
+    background: blue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>

@@ -40,10 +40,16 @@ const login = async () => {
         <input v-model="password" type="password" placeholder="Password" class="input" />
         <button @click="login" class="button">Log In</button>
         <p>{{ message }}</p>
+        <br>
+        <router-link to="/signup">Don't have an account? Register here</router-link>
     </div>
 </template>
 
 <style scoped>
+* {
+    box-sizing: border-box;
+}
+
 .login-container {
     max-width: 400px;
     margin: 50px auto;
@@ -54,10 +60,11 @@ const login = async () => {
 }
 
 .input {
-    display: block;
     width: 100%;
     padding: 10px;
     margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 
 .button {
