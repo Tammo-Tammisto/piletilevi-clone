@@ -1,11 +1,14 @@
 <script setup>
+import { ref } from 'vue';
 import Tabs from './components/Tabs.vue';
 </script>
 
 <template>
-  <tabs></tabs>
+  <Tabs />
   <Suspense>
-    <router-view></router-view>
+    <template #default>
+      <RouterView />
+    </template>
     <template #fallback>
       Loading...
     </template>
