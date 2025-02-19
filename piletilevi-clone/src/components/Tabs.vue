@@ -1,8 +1,18 @@
 <script setup>
-import { useRouter, useRoute } from 'vue-router';
-const route = useRoute();
-const router = useRouter();
-console.log(router.getRoutes());
+import { computed } from 'vue';
+
+const userRole = computed(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+        try {
+            return JSON.parse(user).role;
+        } catch (e) {
+            console.error("Error parsing user data:", e);
+            return null;
+        }
+    }
+    return null;
+});
 </script>
 
 <template>
@@ -16,6 +26,7 @@ console.log(router.getRoutes());
         </div>
 
         <div class="tabs">
+
             <router-link to="/tickets/all">All events</router-link>
             <router-link to="/tickets/music">Music</router-link>
             <router-link to="/tickets/theater">Theater</router-link>
@@ -27,7 +38,9 @@ console.log(router.getRoutes());
             <router-link to="/tickets/soul">Fot the soul</router-link>
         </div>
 
-        <li v-if="test"></li>
+        <li v-if="userRole === 'admin'">
+            <router-link to="/admin">Admin panel</router-link>
+        </li>
     </div>
 </template>
 

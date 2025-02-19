@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import sqlite3 from 'sqlite3';
 import bodyParser from 'body-parser';
+import bcrypt from 'bcrypt';
+
 const app = express();
 const port = 3000;
+const saltRounds = 10;
 
 app.use(cors());
-
 app.use(bodyParser.json());
 
 const db = new sqlite3.Database('./db.sqlite', sqlite3.OPEN_READWRITE, (err) => {
@@ -18,7 +20,7 @@ const db = new sqlite3.Database('./db.sqlite', sqlite3.OPEN_READWRITE, (err) => 
 });
 
 app.get('/users', (req, res) => {
-    db.all('SELECT * FROM users', (err, rows) => {
+    db.all('SELECT id, first_name, last_name, email FROM users', (err, rows) => {
         if (err) {
             res.status(500).send(err);
         } else {
@@ -26,52 +28,126 @@ app.get('/users', (req, res) => {
         }
     });
 });
-//signupi on vaja veel muuta
-app.post('/signup', (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
 
-    db.run(
-        'INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
-        [firstName, lastName, email, password],
-        function (err) {
-            if (err) {
-                return res.status(500).send(err);
-            }
+app.post('/signup', async (req, res) => {
+    try {
+        const { firstName, lastName, email, password } = req.body;
 
-            // Retrieve the newly created user
-            db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        db.run(
+            'INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
+            [firstName, lastName, email, hashedPassword],
+            function (err) {
                 if (err) {
                     return res.status(500).send(err);
                 }
-                res.send({ message: 'Signup successful', user });
-            });
-        }
-    );
+
+                // Retrieve the newly created user without the password
+                db.get('SELECT id, first_name, last_name, email FROM users WHERE email = ?', [email], (err, user) => {
+                    if (err) {
+                        return res.status(500).send(err);
+                    }
+                    res.send({ message: 'Signup successful', user });
+                });
+            }
+        );
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.post('/signin', (req, res) => {
     const { email, password } = req.body;
 
-    console.log("Received Email:", email);
-    console.log("Received Password:", password);
-
-    db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-
-        console.log("User from DB:", user);
 
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }
 
-        if (user.password !== password) {
+        // Compare the hashed password
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
             return res.status(401).json({ message: 'Incorrect password' });
         }
 
-        res.json({ message: 'Login successful', user });
+        // Send user info excluding the password
+        const { password: _, ...userWithoutPassword } = user;
+        res.json({ message: 'Login successful', user: userWithoutPassword });
     });
+});
+
+app.post('/new-event', (req, res) => {
+    const { userId, title, description, location, date, price, totalTickets } = req.body;
+
+    db.get('SELECT role FROM users WHERE id = ?', [userId], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied: Only admins can create events' });
+        }
+
+        db.run(
+            'INSERT INTO events (title, description, location, date, price, total_tickets) VALUES (?, ?, ?, ?, ?, ?)',
+            [title, description, location, date, price, totalTickets],
+            function (err) {
+                if (err) {
+                    return res.status(500).send(err);
+                }
+                res.send({ message: 'Event created successfully', eventId: this.lastID });
+            }
+        );
+    });
+});
+
+app.post('/is-admin', (req, res) => {
+    const { userId } = req.body;
+
+    db.get('SELECT role FROM users WHERE id = ?', [userId], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the user is an admin
+        const isAdmin = user.role === 'admin';
+        res.json({ isAdmin });
+    });
+});
+
+app.get('/events', (req, res) => {
+    db.all('SELECT * FROM events', (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
+app.put('/update-event/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, description, location, date, price, totalTickets } = req.body;
+
+    db.run(
+        'UPDATE events SET title = ?, description = ?, location = ?, date = ?, price = ?, total_tickets = ? WHERE id = ?',
+        [title, description, location, date, price, totalTickets, id],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ message: 'Event updated successfully' });
+        }
+    );
 });
 
 app.listen(port, () => {

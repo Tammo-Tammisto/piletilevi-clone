@@ -7,6 +7,7 @@ import Tickets from './pages/Tickets.vue';
 import Signup from './pages/Signup.vue';
 import Login from './pages/Login.vue';
 import Cart from './pages/Cart.vue';
+import Admin from './pages/AdminPanel.vue';
 
 const routes = [
     { path: '/', component: Home, name: 'Home' },
@@ -14,6 +15,7 @@ const routes = [
     { path: '/signup', component: Signup, name: 'Signup' },
     { path: '/login', component: Login, name: 'Login' },
     { path: '/cart', component: Cart, name: 'Cart' },
+    { path: '/admin', component: Admin, name: 'Admin' },
 ];
 
 const router = createRouter({
