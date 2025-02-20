@@ -132,7 +132,7 @@ export default {
             isEditing.value = true;
 
             // Convert timestamp to ISO format
-            let isoDate = new Date(event.date * 1000).toISOString();
+            let isoDate = new Date((event.date + 7200) * 1000).toISOString();
 
             eventData.value = {
                 id: event.id,
