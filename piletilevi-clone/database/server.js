@@ -83,7 +83,7 @@ app.post('/signin', (req, res) => {
 });
 
 app.post('/new-event', (req, res) => {
-    const { userId, title, description, location, date, price, totalTickets } = req.body;
+    const { userId, title, description, location, date, price, totalTickets, imageUrl } = req.body;
 
     db.get('SELECT role FROM users WHERE id = ?', [userId], (err, user) => {
         if (err) {
@@ -95,8 +95,8 @@ app.post('/new-event', (req, res) => {
         }
 
         db.run(
-            'INSERT INTO events (title, description, location, date, price, total_tickets) VALUES (?, ?, ?, ?, ?, ?)',
-            [title, description, location, date, price, totalTickets],
+            'INSERT INTO events (title, description, location, date, price, total_tickets, imgURL) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [title, description, location, date, price, totalTickets, imageUrl],
             function (err) {
                 if (err) {
                     return res.status(500).send(err);
@@ -136,11 +136,11 @@ app.get('/events', (req, res) => {
 
 app.put('/update-event/:id', (req, res) => {
     const { id } = req.params;
-    const { title, description, location, date, price, totalTickets } = req.body;
+    const { title, description, location, date, price, totalTickets, imageUrl } = req.body;
 
     db.run(
-        'UPDATE events SET title = ?, description = ?, location = ?, date = ?, price = ?, total_tickets = ? WHERE id = ?',
-        [title, description, location, date, price, totalTickets, id],
+        'UPDATE events SET title = ?, description = ?, location = ?, date = ?, price = ?, total_tickets = ?, imgURL = ? WHERE id = ?',
+        [title, description, location, date, price, totalTickets, imageUrl, id],
         function (err) {
             if (err) {
                 return res.status(500).json({ error: err.message });

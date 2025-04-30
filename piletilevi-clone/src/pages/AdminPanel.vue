@@ -24,9 +24,13 @@
                 <label for="eventTotalTickets">Total Tickets</label>
                 <input type="number" id="eventTotalTickets" v-model="eventData.totalTickets" required>
 
+                <label for="image">Event Image</label>
+                <input type="file" id="image" @change="(event) => { console.log('File input change event triggered'); uploadImage(event); }" required />
+
                 <button type="submit">{{ isEditing ? 'Update Event' : 'Create Event' }}</button>
                 <button v-if="isEditing" type="button" @click="cancelEdit">Cancel</button>
             </form>
+            <p v-if="eventData.imageUrl">Image URL: {{ eventData.imageUrl }}</p>
             <p v-if="message">{{ message }}</p>
         </div>
 
@@ -49,6 +53,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
+const imgbbApiKey = "b348f798ea0cc038a183a777e4ee0209";
+
 export default {
     setup() {
         const eventData = ref({
@@ -59,7 +65,8 @@ export default {
             date: '',
             time: '',
             price: '',
-            totalTickets: ''
+            totalTickets: '',
+            imageUrl: ''
         });
 
         const events = ref([]);
@@ -115,7 +122,8 @@ export default {
                     location: eventData.value.location,
                     date: eventTimestamp,
                     price: eventData.value.price,
-                    totalTickets: eventData.value.totalTickets
+                    totalTickets: eventData.value.totalTickets,
+                    imageUrl: eventData.value.imageUrl
                 });
 
                 message.value = response.data.message;
@@ -164,7 +172,8 @@ export default {
                     location: eventData.value.location,
                     date: eventTimestamp,
                     price: eventData.value.price,
-                    totalTickets: eventData.value.totalTickets
+                    totalTickets: eventData.value.totalTickets,
+                    imageUrl: eventData.value.imageUrl
                 });
 
                 message.value = response.data.message;
@@ -178,7 +187,7 @@ export default {
 
         // Reset form and cancel editing
         const resetForm = () => {
-            eventData.value = { id: null, title: '', description: '', location: '', date: '', time: '', price: '', totalTickets: '' };
+            eventData.value = { id: null, title: '', description: '', location: '', date: '', time: '', price: '', totalTickets: '', imageUrl: '' };
             isEditing.value = false;
         };
 
@@ -186,9 +195,45 @@ export default {
             resetForm();
         };
 
+        // Move the uploadImage function inside the setup function
+        const uploadImage = async (event) => {
+            console.log('uploadImage function triggered');
+
+            const file = event.target.files[0];
+            if (!file) {
+                console.error('No file selected for upload.');
+                return;
+            }
+
+            console.log('Uploading file:', file.name);
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                console.log('ImgBB API response:', response.data);
+
+                if (response.data && response.data.data && response.data.data.url) {
+                    eventData.value.imageUrl = response.data.data.url;
+                    console.log('Image URL set to:', eventData.value.imageUrl);
+                } else {
+                    console.error('No image link returned from ImgBB API');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        };
+
         onMounted(checkAdminStatus);
 
-        return { eventData, createEvent, editEvent, updateEvent, cancelEdit, isAdmin, message, events, isEditing };
+        // Add uploadImage to the return statement
+        return { eventData, createEvent, editEvent, updateEvent, cancelEdit, isAdmin, message, events, isEditing, uploadImage };
     }
 };
 </script>
