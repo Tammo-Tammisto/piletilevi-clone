@@ -24,6 +24,14 @@
                 <label for="eventTotalTickets">Total Tickets</label>
                 <input type="number" id="eventTotalTickets" v-model="eventData.totalTickets" required>
 
+                <label for="eventGenre">Event Genres</label>
+                <div id="eventGenre">
+                    <label v-for="genre in availableGenres" :key="genre">
+                        <input type="checkbox" :value="genre" v-model="eventData.genres" />
+                        {{ genre }}
+                    </label>
+                </div>
+
                 <label for="image">Event Image</label>
                 <input type="file" id="image" @change="(event) => { console.log('File input change event triggered'); uploadImage(event); }" required />
 
@@ -66,8 +74,11 @@ export default {
             time: '',
             price: '',
             totalTickets: '',
-            imageUrl: ''
+            imageUrl: '',
+            genres: [],
         });
+
+        const availableGenres = ["music", "theater", "sport", "festival", "giftcards", "family", "exhibition", "soul"];
 
         const events = ref([]);
         const isAdmin = ref(false);
@@ -97,7 +108,10 @@ export default {
         const fetchEvents = async () => {
             try {
                 const response = await axios.get('http://localhost:3000/events');
-                events.value = response.data;
+                events.value = response.data.map(event => ({
+                    ...event,
+                    genres: event.genre ? event.genre.split(',') : [] // Split genres into an array
+                }));
             } catch (error) {
                 console.error('Error fetching events:', error);
             }
@@ -123,7 +137,8 @@ export default {
                     date: eventTimestamp,
                     price: eventData.value.price,
                     totalTickets: eventData.value.totalTickets,
-                    imageUrl: eventData.value.imageUrl
+                    imageUrl: eventData.value.imageUrl,
+                    genre: eventData.value.genres.join(",") // Combine genres into a single string
                 });
 
                 message.value = response.data.message;
@@ -145,12 +160,14 @@ export default {
             eventData.value = {
                 id: event.id,
                 title: event.title,
-                description: event.description,
+                description: event.description || '', // Ensure description is populated
                 location: event.location,
                 date: isoDate.split('T')[0],  // Extract YYYY-MM-DD
                 time: isoDate.split('T')[1].slice(0, 5), // Extract HH:MM
-                price: event.price,
-                totalTickets: event.totalTickets || event.total_tickets // Handle different key names
+                price: event.price || 0, // Ensure price is populated
+                totalTickets: event.totalTickets || event.total_tickets || 0, // Handle different key names and ensure totalTickets is populated
+                imageUrl: event.imgURL || '',
+                genres: event.genre ? event.genre.split(',') : [] // Split genres into an array
             };
         };
 
@@ -173,7 +190,8 @@ export default {
                     date: eventTimestamp,
                     price: eventData.value.price,
                     totalTickets: eventData.value.totalTickets,
-                    imageUrl: eventData.value.imageUrl
+                    imageUrl: eventData.value.imageUrl,
+                    genre: eventData.value.genres.join(",") // Combine genres into a single string
                 });
 
                 message.value = response.data.message;
@@ -187,7 +205,7 @@ export default {
 
         // Reset form and cancel editing
         const resetForm = () => {
-            eventData.value = { id: null, title: '', description: '', location: '', date: '', time: '', price: '', totalTickets: '', imageUrl: '' };
+            eventData.value = { id: null, title: '', description: '', location: '', date: '', time: '', price: '', totalTickets: '', imageUrl: '', genres: [] };
             isEditing.value = false;
         };
 
@@ -233,7 +251,7 @@ export default {
         onMounted(checkAdminStatus);
 
         // Add uploadImage to the return statement
-        return { eventData, createEvent, editEvent, updateEvent, cancelEdit, isAdmin, message, events, isEditing, uploadImage };
+        return { eventData, createEvent, editEvent, updateEvent, cancelEdit, isAdmin, message, events, isEditing, uploadImage, availableGenres };
     }
 };
 </script>
