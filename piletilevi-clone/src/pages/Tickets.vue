@@ -1,7 +1,11 @@
 <template>
   <div>
     <div>
-      <h2>All Events</h2>
+      <h2>{{ route.params.genre === 'all' ? 'All Events' : route.params.genre === 'music' ? 'Music' :
+        route.params.genre === 'theater' ? 'Theater' : route.params.genre === 'sport' ? 'Sport' :
+          route.params.genre === 'festival' ? 'Festival' : route.params.genre === 'giftcards' ? 'Gift Cards' :
+            route.params.genre === 'family' ? 'For the Family' : route.params.genre === 'exhibition' ? 'Exhibitions' :
+              route.params.genre === 'soul' ? 'For the Soul' : 'Unknown genre' }}</h2>
       <div class="p-8 grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <EventPoster v-for="event in events" :key="event.id" :event="event" />
       </div>
@@ -70,6 +74,7 @@ export default {
 
     return {
       events,
+      route,
     };
   },
 };
