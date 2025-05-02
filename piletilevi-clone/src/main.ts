@@ -10,6 +10,7 @@ import Login from './pages/Login.vue';
 import Cart from './pages/Cart.vue';
 import Admin from './pages/AdminPanel.vue';
 import Event from './pages/Event.vue';
+import UserPage from './pages/UserPage.vue';
 
 const routes = [
     { path: '/', component: Home, name: 'Home' },
@@ -19,6 +20,7 @@ const routes = [
     { path: '/cart', component: Cart, name: 'Cart' },
     { path: '/admin', component: Admin, name: 'Admin' },
     { path: '/event/:id', component: Event, name: 'Event', props: true },
+    { path: '/userPage', component: UserPage, name: 'UserPage', props: true },
 ];
 
 const router = createRouter({

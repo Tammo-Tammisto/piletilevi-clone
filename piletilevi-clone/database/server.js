@@ -33,6 +33,17 @@ app.get("/users", (req, res) => {
   });
 });
 
+app.get("/user/:id", (req, res) => {
+  const { id } = req.params;
+  db.get("SELECT first_name, last_name, email, created_at FROM users WHERE id = ?", [id], (err, row) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.send(row);
+    }
+  });
+});
+
 app.post("/signup", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -116,7 +127,16 @@ app.post("/new-event", (req, res) => {
 
     db.run(
       "INSERT INTO events (title, description, location, date, price, total_tickets, imgURL, genre) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [title, description, location, date, price, totalTickets, imageUrl, genre],
+      [
+        title,
+        description,
+        location,
+        date,
+        price,
+        totalTickets,
+        imageUrl,
+        genre,
+      ],
       function (err) {
         if (err) {
           return res.status(500).send(err);
@@ -198,12 +218,30 @@ app.get("/event/:id", (req, res) => {
 
 app.put("/update-event/:id", (req, res) => {
   const { id } = req.params;
-  const { title, description, location, date, price, totalTickets, imageUrl, genre } =
-    req.body;
+  const {
+    title,
+    description,
+    location,
+    date,
+    price,
+    totalTickets,
+    imageUrl,
+    genre,
+  } = req.body;
 
   db.run(
     "UPDATE events SET title = ?, description = ?, location = ?, date = ?, price = ?, total_tickets = ?, imgURL = ?, genre = ? WHERE id = ?",
-    [title, description, location, date, price, totalTickets, imageUrl, genre, id],
+    [
+      title,
+      description,
+      location,
+      date,
+      price,
+      totalTickets,
+      imageUrl,
+      genre,
+      id,
+    ],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });

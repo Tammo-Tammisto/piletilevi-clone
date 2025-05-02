@@ -13,6 +13,10 @@ const userRole = computed(() => {
     }
     return null;
 });
+
+const isLoggedIn = computed(() => {
+    return !!localStorage.getItem('user');
+});
 </script>
 
 <template>
@@ -20,13 +24,14 @@ const userRole = computed(() => {
         <div class="navbar-top">
             <a href="/"><img src="./icons/piletilevi.svg" alt="piletilevi logo" class="nav-logo"></a>
             <div class="nav-buttons">
-                <a href="/login"><img src="./icons/login.svg" alt="login button" class="nav-icon"></a>
+                <a :href="isLoggedIn ? '/userPage' : '/login'">
+                    <img src="./icons/login.svg" alt="login button" class="nav-icon">
+                </a>
                 <a href="/cart"><img src="./icons/cart.svg" alt="cart" class="nav-icon"></a>
             </div>
         </div>
 
         <div class="tabs">
-
             <router-link to="/tickets/all">All events</router-link>
             <router-link to="/tickets/music">Music</router-link>
             <router-link to="/tickets/theater">Theater</router-link>

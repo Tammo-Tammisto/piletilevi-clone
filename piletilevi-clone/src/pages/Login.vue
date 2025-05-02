@@ -26,7 +26,7 @@ const login = async () => {
         localStorage.setItem('user', JSON.stringify(data.user));
 
         // Redirect to Home page
-        router.push('/');
+        window.location.href = '/';
     } else {
         message.value = 'Login failed: ' + data.message;
     }
