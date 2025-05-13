@@ -15,15 +15,15 @@
 | Column Name     | Type       | Default               | Description                        |
 |-----------------|------------|------------------------|------------------------------------|
 | `id`            | INTEGER    | Primary Key, Auto Increment | Unique event identifier       |
+| `imgURL`        | TEXT       | –                      | URL to an image for the event      |
 | `title`         | TEXT       | –                      | Title of the event                 |
 | `description`   | TEXT       | –                      | Event description                  |
+| `genre`         | TEXT       | –                      | Type of event (music, theater, etc.) |
 | `location`      | TEXT       | –                      | Where the event takes place        |
 | `date`          | INTEGER    | –                      | Date of event (Unix Timestamp)     |
 | `price`         | REAL       | –                      | Price of a single ticket           |
 | `total_tickets` | INTEGER    | –                      | Number of tickets available        |
 | `created_at`    | TIMESTAMP  | CURRENT_TIMESTAMP      | When the event was created         |
-| `imgURL`        | TEXT       | –                      | URL to an image for the event      |
-| `genre`         | TEXT       | –                      | Type of event (music, theater, etc.) |
 
 ---
 
