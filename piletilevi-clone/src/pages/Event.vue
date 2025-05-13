@@ -1,8 +1,7 @@
 <template>
-    <h1>{{ eventDetails }}</h1>
     <div>
+        <h1>Event: {{ eventDetails.title }}</h1>
         <img :src="eventDetails.imgURL" alt="Event Image" class="event-image" />
-        <h1>Title: {{ eventDetails.title }}</h1>
         <h1>Description: {{ eventDetails.description }}</h1>
         <h1>Location: {{ eventDetails.location }}</h1>
         <h1>Date: {{ formattedDate }}</h1>
@@ -11,6 +10,7 @@
         <h1>Total Tickets: {{ eventDetails.total_tickets }}</h1>
         <h1>Genres: {{ eventDetails.genres.join(', ') }}</h1>
     </div>
+    <button @click="$router.push('/purchase/' + eventId)">Purchase a ticket</button>
 </template>
 
 <script setup>
@@ -26,8 +26,8 @@ const eventDetails = ref({
     location: '',
     date: '',
     time: '',
-    price: '',
-    total_tickets: '',
+    price: 0,
+    total_tickets: 0,
     imgURL: '',
     genres: [],
 });
