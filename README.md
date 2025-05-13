@@ -50,5 +50,3 @@
 | `userID`    | INTEGER | Foreign key referencing `users.id`      |
 
 ---
-
-Let me know if you’d like to add relationships, indexes, or ER diagrams.
